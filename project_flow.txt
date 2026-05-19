@@ -1,0 +1,26 @@
+    User
+    |
+    V
+    Streamlit UI
+    |
+    V
+    Router
+    ├──> /documents/upload
+    ├──> /chat
+    ├──> /memories
+    ├──> /logs
+    |
+    V
+    Services
+    ├──> Document Ingestion Service
+    ├──> Chungking Service
+    ├──> Embedding Service
+    ├──> RAG Retrieval Service
+    ├──> Memory Extraction Service
+    ├──> LLM Service
+    ├──> Observability Servicer
+    |
+    V
+    Storage
+    ├──> SQLite: users, conversations, memories, logs
+    └──> ChromaDB: document chunks + Embedding
