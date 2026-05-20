@@ -13,16 +13,16 @@ router = APIRouter()
 
 llm_service = LLMService()
 
-@router.post("/chat", response_model=ChatResponse)
+@router.post("/", response_model=ChatResponse)
 def chat(request: ChatRequest, db: Session = Depends(get_db)):
     start_time = time.time()
 
-    user_message = request.message(
-        user_id = request.user_id,
-        role = "user",
-        message = request.message,
+    # Lưu câu hỏi của user vào database
+    user_message = Conversation(
+        user_id=request.user_id,
+        role="user",
+        message=request.message
     )
-
     db.add(user_message)
     db.commit()
     # Tạo prompt cho LLM
@@ -35,6 +35,7 @@ def chat(request: ChatRequest, db: Session = Depends(get_db)):
             - Answer clearly and concisely.
             User question: {request.message}
             Assistant answer:
+            Please answer in a helpful and concise way
             """
     
     # Gọi LLM để tạo câu trả lời
@@ -45,8 +46,7 @@ def chat(request: ChatRequest, db: Session = Depends(get_db)):
         error_message = None
     except Exception as e:
         answer = "Sorry, I could not generate an answer"
-        raise RuntimeError(f"LLM generation failed: {e}")
-        status = "error"
+        status = "faild"
         error_message = str(e)
     
     # Lưu message của assistant

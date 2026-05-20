@@ -38,10 +38,33 @@ class RequestLog(Base):
     user_id = Column(String, default="default_user", index=True)
     query = Column(Text, nullable=False)  # Câu hỏi của user
     response = Column(Text, nullable=False)  # Câu trả lời của AI
-    retrieved_memories = Column(Integer, default=0)  # Trí nhớ được truy xuất (nếu có)
+    retrieved_chunks_count = Column(Integer, default=0)  # Trí nhớ được truy xuất (nếu có)
     memories_used_count = Column(Integer, default=0) # Sau này dùng bao nhiêu memories thì lưu ở đây
     latency_ms = Column(Float, default=0.0)  # Thời gian phản hồi của hệ thống
     llm_model = Column(String) # Model LLM được sử dụng để trả lời câu hỏi
     status = Column(String, default="success")  # Trạng thái của yêu cầu, ví dụ: "success", "error"
     error_message = Column(Text, nullable=True)  # Nếu có lỗi, lưu thông tin lỗi ở đây
     created_at = Column(DateTime, default=datetime.utcnow)  # Thời gian tạo log yêu cầu
+
+class Document(Base):
+    __tablename__ = "documents"
+
+    id = Column(Integer, primary_key = True, index = True)
+    user_id = Column(String, default="default_user", index=True)
+    file_name = Column(String, nullable=False)
+    file_type = Column(String, nullable=False)
+    file_path = Column(String, nullable=False)
+    total_characters = Column(Integer, default = 0)
+    total_chunks = Column(Integer, default=0)
+    create_at = Column(DateTime, default=datetime.utcnow)
+
+class DocumentChunk(Base):
+    __tablename__ = "document_chunk"
+    id = Column(Integer, primary_key=True, index=True)
+    document_id = Column(Integer, index = True)
+    user_id = Column(String, default = "default_user", index=True)
+    chunk_index = Column(Integer, nullable=False)
+    content = Column(Text, nullable=False)
+    char_count = Column(Integer, default=0)
+    source_file = Column(String, nullable=False)
+    create_at = Column(DateTime, default=datetime.utcnow)

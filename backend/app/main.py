@@ -19,9 +19,9 @@ def on_startup():
 # Documents thì upload với xử lý tài liệu
 # memories thì quản lý trí nhớ dài hạn
 # logs thì xem logs hệ thống
-app.include_router(chat.router, prefix="/chat", tag=["Chat"])
+app.include_router(chat.router, prefix="/chat", tags=["Chat"])
 app.include_router(documents.router, prefix="/documents", tags =["Documents"])
-app.include_router(memories.router, prefix="/memories", tag=["Memories"])
+app.include_router(memories.router, prefix="/memories", tags=["Memories"])
 app.include_router(logs.router, prefix="/logs", tags=["Logs"])
 
 @app.get("/")

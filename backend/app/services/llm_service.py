@@ -8,25 +8,59 @@ class LLMService:
         self.model = settings.OLLAMA_MODEL
     
     def generate(self, prompt: str) -> str:
-        url = f"{self.base_url}/api/generate"
+        url = f"{self.base_url}/api/chat"
 
         payload = {
             "model": self.model,
-            "prompt": prompt,
-            "stream": False
+            "messages": [
+                {
+                    "role": "system",
+                    "content": (
+                        "You are MemoRAG Agent, a helpful AI assistant. "
+                        "Answer clearly and directly. "
+                        "Do not return an empty response."
+                    )
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+
+            # stream=False để đợi model trả lời xong một lần
+            "stream": False,
+
+            # options giúp kiểm soát output
+            "options": {
+                "temperature": 0.3,
+                "num_predict": 512
+            }
         }
 
         try:
-            response = resquests.post(
+            response = requests.post(
                 url,
                 json=payload,
-                timeout=120
+                timeout=180
             )
 
             response.raise_for_status()
 
             data = response.json()
 
-            return data.get("text", "").strip()
+            message = data.get("message", {})
+            content = message.get("content", "")
+
+            # Clean response
+            content = content.strip()
+
+            # Nếu model trả rỗng thì báo lỗi rõ ràng
+            if not content:
+                raise RuntimeError(
+                    f"Ollama returned empty response. Raw response: {data}"
+                )
+
+            return content
+
         except requests.exceptions.RequestException as e:
-            raise RuntimeError(f"Ollama request failed: {e}")
+            raise RuntimeError(f"Ollama request failed: {str(e)}")

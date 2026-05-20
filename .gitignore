@@ -1,2 +1,12 @@
+__pycache__/
+*.pyc
+venv/
 .env
-.venv
+*.db
+memorag.db
+backend/uploads/
+backend/chroma_db/
+.streamlit/
+*.log
+.vscode/
+.idea/

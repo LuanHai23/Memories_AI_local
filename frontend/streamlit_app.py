@@ -46,4 +46,60 @@ if user_input:
         }
     )
 
+    # Hiển thị message
+    with st.chat_message("user"):
+        st.write(user_input)
+
+    # Call backen và hiển thị câu trả lời
+    with st.chat_message("assistant"):
+        with st.spinner("Thinking"):
+            try:
+                # Gửi request sang FastAPI
+                response = requests.post(
+                    f"{API_BASE_URL}/chat/",
+                    json = {
+                        "user_id": user_id,
+                        "message": user_input
+                    },
+                    timeout=180
+                )
+
+                # Status code lỗi thì ráie exception
+                response.raise_for_status()
+
+                # Convert JSON response thành dict
+                data = response.json()
+
+                # Lấy answer và latency từ backend
+                answer = data["answer"]
+                latency_ms = data["latency_ms"]
+
+                # hiển thị answer
+                st.write(answer)
+
+                # Hiển thị latency
+                st.caption(f" Latency: {latency_ms} ms")
+
+                # Hiển thị answer
+                st.write(answer)
+
+                # Lưu assistant answer vào session_state
+                st.session_state.messages.append(
+                    {
+                        "role":"assistant",
+                        "content": answer
+                    }
+                )
+            except Exception as e:
+                # Nếu backend lỗi, Ollama lỗi hoặc bị timeout
+                error_msg = f"Error: {str(e)}"
+
+                st.error(error_msg)
+
+                st.session_state.messages.append(
+                    {
+                        "role": "assistant",
+                        "content": error_msg
+                    }
+                )
 
