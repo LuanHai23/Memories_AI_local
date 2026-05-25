@@ -15,3 +15,37 @@ The project is designed as a portfolio-ready AI Engineering system, focusing on 
 - Streamlit frontend
 - SQLite-based metadata storage
 - Observability dashboard for request tracking
+
+## High-level Architecture
+
+```mermaid
+flowchart LR
+    User[User] --> Frontend[Streamlit Frontend]
+
+    Frontend --> ChatAPI[FastAPI Chat API]
+    Frontend --> DocumentAPI[FastAPI Document API]
+    Frontend --> MemoryAPI[FastAPI Memory API]
+    Frontend --> LogsAPI[FastAPI Logs API]
+
+    ChatAPI --> LLM[Ollama Local LLM]
+    ChatAPI --> RAG[RAG Service]
+    ChatAPI --> MemoryService[Memory Service]
+    ChatAPI --> Logger[Observability Service]
+
+    DocumentAPI --> FileLoader[File Loader]
+    DocumentAPI --> Chunking[Chunking Service]
+    DocumentAPI --> Embedding[Embedding Service]
+    DocumentAPI --> VectorDB[ChromaDB Vector Store]
+
+    RAG --> Embedding
+    RAG --> VectorDB
+
+    MemoryService --> SQLite[(SQLite Database)]
+    MemoryService --> Embedding
+
+    Logger --> SQLite
+    DocumentAPI --> SQLite
+    ChatAPI --> SQLite
+
+    LLM --> ChatAPI
+    ChatAPI --> Frontend
