@@ -48,9 +48,43 @@ flowchart LR
     ChatAPI --> SQLite
 
 
-```markdown
+## Chat and Long-term Memory Flow
 
-This architecture separates the system into frontend, backend APIs, AI services, storage layers, and observability. The user interacts with a Streamlit interface, while FastAPI handles chat, documents, memories, and logs. Documents are stored as chunks in ChromaDB for semantic retrieval, while conversations, memories, document metadata, and request logs are stored in SQLite.
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant FE as Streamlit Frontend
+    participant API as FastAPI Chat API
+    participant MEM as Memory Service
+    participant RAG as RAG Service
+    participant VDB as ChromaDB
+    participant DB as SQLite
+    participant LLM as Ollama LLM
 
-    LLM --> ChatAPI
-    ChatAPI --> Frontend
+    U->>FE: Send message
+    FE->>API: POST /chat
+
+    API->>DB: Save user message
+
+    API->>MEM: Extract useful long-term memories
+    MEM->>LLM: Ask LLM to identify durable user facts
+    LLM-->>MEM: Return structured memory JSON
+    MEM->>DB: Save extracted memories
+
+    API->>MEM: Retrieve relevant memories
+    MEM->>MEM: Embed user question
+    MEM->>DB: Load active memories
+    MEM->>MEM: Compute semantic similarity
+    MEM-->>API: Return relevant memories
+
+    API->>RAG: Search document context
+    RAG->>VDB: Semantic search document chunks
+    VDB-->>RAG: Return top matching chunks
+    RAG-->>API: Return filtered contexts
+
+    API->>LLM: Build prompt with user question + memories + document context
+    LLM-->>API: Generate final answer
+
+    API->>DB: Save assistant response and request log
+    API-->>FE: Return answer, memories used, contexts, latency
+    FE-->>U: Display assistant response
