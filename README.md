@@ -47,5 +47,11 @@ flowchart LR
     DocumentAPI --> SQLite
     ChatAPI --> SQLite
 
+
+Bên dưới diagram thêm đoạn giải thích:
+
+```markdown
+This architecture separates the system into frontend, backend APIs, AI services, storage layers, and observability. The user interacts with a Streamlit interface, while FastAPI handles chat, documents, memories, and logs. Documents are stored as chunks in ChromaDB for semantic retrieval, while conversations, memories, document metadata, and request logs are stored in SQLite.
+
     LLM --> ChatAPI
     ChatAPI --> Frontend
